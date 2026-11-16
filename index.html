@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI: Harga Pasar - Nolvi Moli, S.Pd.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'], arabic: ['Amiri', 'serif'] }, colors: { emerald: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', 900: '#064e3b' }, gold: { 500: '#eab308', 600: '#ca8a04' } } } }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; color: #1f2937; overflow-x: hidden; }
+        .arabic-text { font-family: 'Amiri', serif; font-size: 1.75rem; line-height: 2.5rem; text-align: right; direction: rtl; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out forwards; }
+        .slide-up { animation: slideUp 0.5s ease-out forwards; }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #ecfdf5; } ::-webkit-scrollbar-thumb { background: #059669; border-radius: 4px; }
+        .hidden-view { display: none !important; }
+        .interactive-item { cursor: pointer; transition: all 0.2s; }
+        .interactive-item.selected { border-color: #10b981; background-color: #d1fae5; box-shadow: 0 0 0 2px #10b981; }
+        @media print { body { background: white; } .no-print { display: none !important; } .page-break-avoid { page-break-inside: avoid; } }
+    </style>
+</head>
+<body class="min-h-screen relative selection:bg-emerald-200">
+
+    <!-- Alert Modal -->
+    <div id="custom-alert" class="fixed inset-0 z-[100] hidden-view flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl slide-up text-center border-t-4 border-emerald-500">
+            <div id="alert-icon" class="text-4xl text-emerald-500 mb-4"><i class="fas fa-info-circle"></i></div>
+            <h3 id="alert-title" class="text-xl font-bold text-gray-800 mb-2">Pemberitahuan</h3>
+            <p id="alert-message" class="text-gray-600 mb-6">Pesan.</p>
+            <button onclick="closeAlert()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-6 rounded-full w-full">Mengerti</button>
+        </div>
+    </div>
+
+    <!-- 1. SPLASH -->
+    <section id="splash-screen" class="fixed inset-0 z-50 bg-emerald-700 flex flex-col items-center justify-center text-white transition-opacity duration-500">
+        <div class="text-6xl text-gold-500 mb-4 float-anim"><i class="fas fa-store"></i></div>
+        <h1 class="text-4xl font-bold mb-2">Harga Pasar</h1>
+        <p class="text-emerald-200 font-medium">Media Pembelajaran Interaktif IPS</p>
+    </section>
+
+    <!-- 2. COVER -->
+    <section id="cover-screen" class="min-h-screen flex items-center justify-center p-4 hidden-view fade-in" style="background-image: radial-gradient(#d1fae5 2px, transparent 2px); background-size: 30px 30px;">
+        <div class="glass max-w-md w-full rounded-3xl p-8 text-center shadow-2xl border-t-4 border-emerald-500 slide-up">
+            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">IPS Kelas IX / Fase D</span>
+            <div class="my-6 float-anim">
+                <svg class="mx-auto h-24 w-24 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/><circle cx="19" cy="9" r="1" fill="#eab308" stroke="none"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-extrabold text-emerald-900 mb-2">Harga Pasar</h1>
+            <p class="text-sm text-gray-600 mb-6">Memahami dinamika pasar dengan cinta ilmu & kearifan lokal Gorontalo.</p>
+            <div class="space-y-3">
+                <button onclick="openModal('modal-pengembang')" class="w-full bg-white border-2 border-emerald-200 text-emerald-800 font-semibold py-3 px-4 rounded-xl hover:border-emerald-500 flex justify-center items-center gap-2"><i class="fas fa-user-tie"></i> Profil Pengembang</button>
+                <button onclick="openModal('modal-tujuan')" class="w-full bg-white border-2 border-emerald-200 text-emerald-800 font-semibold py-3 px-4 rounded-xl hover:border-emerald-500 flex justify-center items-center gap-2"><i class="fas fa-bullseye"></i> Tujuan Pembelajaran</button>
+                <button onclick="navTo('login-screen')" class="w-full bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-emerald-700 shadow-lg flex justify-center items-center gap-2">MULAI <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals (Pengembang & Tujuan) -->
+    <div id="modal-pengembang" class="fixed inset-0 z-[60] hidden-view flex items-center justify-center p-4 bg-black/60">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative slide-up overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-24 bg-emerald-600"></div>
+            <div class="relative z-10">
+                <img src="https://iili.io/oHpFpyl.md.jpg" onerror="this.src='https://ui-avatars.com/api/?name=N+M&background=10b981&color=fff';" alt="Nolvi Moli" class="w-24 h-24 mx-auto rounded-full border-4 border-white shadow-lg object-cover mb-4">
+                <h2 class="text-2xl font-bold">Nolvi Moli, S.Pd.</h2>
+                <p class="text-emerald-600 font-semibold mb-1">Senior Instructional Designer</p>
+                <p class="text-sm text-gray-500 mb-4">MTs. Negeri 1 Boalemo<br>guru.madrasah@kemenag.go.id</p>
+                <button onclick="closeModal('modal-pengembang')" class="bg-gray-100 py-2 px-6 rounded-full w-full">Kembali</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-tujuan" class="fixed inset-0 z-[60] hidden-view flex items-center justify-center p-4 bg-black/60">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full slide-up max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">Tujuan Pembelajaran</h2>
+            <p class="text-gray-700 mb-4 font-medium">Peserta didik mampu mengidentifikasi upaya masyarakat dalam memenuhi kebutuhan melalui Harga Pasar sebagai wujud cinta ilmu.</p>
+            <div class="bg-emerald-50 p-4 rounded-xl mb-4 border border-emerald-100">
+                <p class="arabic-text text-emerald-900 mb-2">وَأَحَلَّ ٱللَّهُ ٱلْبَيْعَ وَحَرَّمَ ٱلرِّبَوٰا۟</p>
+                <p class="text-sm text-gray-600">"... Padahal Allah telah menghalalkan jual beli dan mengharamkan riba..." (QS. Al-Baqarah: 275)</p>
+            </div>
+            <button onclick="closeModal('modal-tujuan')" class="bg-emerald-600 text-white py-3 px-6 rounded-xl w-full">Tutup</button>
+        </div>
+    </div>
+
+    <!-- 3. LOGIN / IDENTITAS -->
+    <section id="login-screen" class="min-h-screen flex items-center justify-center p-4 hidden-view fade-in">
+        <div class="glass max-w-sm w-full rounded-3xl p-8 shadow-xl">
+            <h2 class="text-2xl font-bold text-center mb-6">Identitas Siswa</h2>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-semibold mb-1">Nama Lengkap</label><input type="text" id="in-nama" class="w-full border px-4 py-3 rounded-xl focus:ring-2 focus:ring-emerald-500" placeholder="Nama..."></div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Kelas</label>
+                    <select id="in-kelas" class="w-full border px-4 py-3 rounded-xl focus:ring-2 focus:ring-emerald-500 bg-white">
+                        <option value="">Pilih Kelas...</option><option value="IX-A">IX-A</option><option value="IX-B">IX-B</option><option value="IX-C">IX-C</option><option value="IX-D">IX-D</option><option value="IX-E">IX-E</option>
+                    </select>
+                </div>
+                <button onclick="submitLogin()" class="w-full bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl mt-4">Lanjut <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. PENGANTAR -->
+    <section id="guide-screen" class="min-h-screen flex flex-col items-center justify-center p-4 hidden-view fade-in bg-white">
+        <div class="max-w-xl text-center">
+            <h2 class="text-3xl font-bold text-emerald-700 mb-4">Selamat Datang, <span id="disp-nama" class="text-gold-600">Siswa</span>!</h2>
+            <p class="text-gray-600 mb-8">Kerjakan pembelajaran secara bertahap: <b>Belajar</b> -> <b>Bermain</b> -> <b>Berlatih</b>. Menu selanjutnya akan terbuka jika tahap sebelumnya telah tuntas.</p>
+            <button onclick="navTo('main-menu')" class="bg-emerald-600 text-white font-bold py-3 px-8 rounded-full shadow-lg">Masuk Menu Utama</button>
+        </div>
+    </section>
+
+    <!-- 5. MENU UTAMA -->
+    <section id="main-menu" class="min-h-screen bg-gray-50 p-4 pb-20 hidden-view fade-in">
+        <div class="max-w-3xl mx-auto pt-8">
+            <div class="bg-white rounded-3xl p-6 shadow-sm mb-8 flex justify-between items-center border">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex justify-center items-center text-emerald-600"><i class="fas fa-user"></i></div>
+                    <div><h2 id="menu-nama" class="font-bold text-lg">Nama</h2><span id="menu-kelas" class="text-xs bg-gray-200 px-2 py-1 rounded">Kelas</span></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- BELAJAR -->
+                <div onclick="openMenu('belajar')" class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-emerald-500 cursor-pointer hover:-translate-y-1 transition-transform relative">
+                    <div class="absolute top-4 right-4 text-emerald-500 bg-emerald-50 p-2 rounded-full"><i class="fas fa-unlock"></i></div>
+                    <div class="text-3xl text-emerald-600 mb-4"><i class="fas fa-book-open"></i></div>
+                    <h3 class="text-xl font-bold mb-1">1. Belajar</h3><p class="text-sm text-gray-500">Materi & Kearifan Lokal</p>
+                </div>
+                <!-- BERMAIN -->
+                <div id="c-bermain" onclick="openMenu('bermain')" class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-gray-300 cursor-not-allowed opacity-70 relative">
+                    <div id="l-bermain" class="absolute top-4 right-4 text-red-400 bg-red-50 p-2 rounded-full"><i class="fas fa-lock"></i></div>
+                    <div class="text-3xl text-gray-500 mb-4"><i class="fas fa-gamepad"></i></div>
+                    <h3 class="text-xl font-bold mb-1">2. Bermain</h3><p class="text-sm text-gray-500">Tantangan Literasi</p>
+                </div>
+                <!-- BERLATIH -->
+                <div id="c-berlatih" onclick="openMenu('berlatih')" class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-gray-300 cursor-not-allowed opacity-70 relative">
+                    <div id="l-berlatih" class="absolute top-4 right-4 text-red-400 bg-red-50 p-2 rounded-full"><i class="fas fa-lock"></i></div>
+                    <div class="text-3xl text-gray-500 mb-4"><i class="fas fa-tasks"></i></div>
+                    <h3 class="text-xl font-bold mb-1">3. Berlatih</h3><p class="text-sm text-gray-500">Asesmen HOTS & Laporan</p>
+                </div>
+            </div>
+            
+            <div id="btn-report-nav" class="mt-8 text-center hidden-view">
+                <button onclick="navTo('report-screen')" class="bg-emerald-100 text-emerald-700 font-bold py-3 px-6 rounded-full shadow"><i class="fas fa-file-pdf mr-2"></i> Lihat Laporan PDF</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. LAYER BELAJAR -->
+    <section id="belajar-screen" class="min-h-screen bg-white hidden-view flex flex-col">
+        <header class="bg-white shadow-sm sticky top-0 z-40 px-4 py-3 flex justify-between items-center border-b">
+            <button onclick="navTo('main-menu')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"><i class="fas fa-arrow-left"></i></button>
+            <div class="font-bold text-emerald-800">Materi <span id="materi-ind">1/6</span></div><div class="w-10"></div>
+        </header>
+        <main class="flex-grow p-5 max-w-3xl mx-auto w-full pb-28" id="belajar-content"></main>
+        <div class="fixed bottom-0 w-full bg-white border-t p-4 z-40 shadow-lg">
+            <div class="max-w-3xl mx-auto flex justify-between items-center">
+                <p class="text-sm font-medium">Selesaikan aktivitas:</p>
+                <button onclick="openMateriQuiz()" class="bg-gold-500 text-white font-bold py-2 px-6 rounded-full shadow animate-pulse">Kuis <i class="fas fa-star"></i></button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modal Quiz Belajar -->
+    <div id="modal-materi-quiz" class="fixed inset-0 z-[60] hidden-view flex items-center justify-center p-4 bg-black/60">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full slide-up">
+            <h3 class="font-bold text-lg mb-3 border-b pb-2"><i class="fas fa-question-circle text-emerald-500"></i> Cek Pemahaman</h3>
+            <p id="materi-q-text" class="text-gray-700 mb-4 text-sm font-medium"></p>
+            <div id="materi-q-options" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- 7. LAYER BERMAIN -->
+    <section id="bermain-screen" class="min-h-screen bg-indigo-50 hidden-view flex flex-col">
+        <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
+            <button onclick="confirmExit('main-menu')" class="w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            <div class="font-bold">Bermain <span id="bermain-ind">1/10</span></div><div class="w-10"></div>
+        </header>
+        <main class="flex-grow p-4 md:p-6 max-w-3xl mx-auto w-full pb-20" id="bermain-content"></main>
+    </section>
+
+    <!-- 8. LAYER BERLATIH -->
+    <section id="berlatih-screen" class="min-h-screen bg-blue-50 hidden-view flex flex-col">
+        <header class="bg-blue-600 text-white shadow-md sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
+            <button onclick="confirmExit('main-menu')" class="w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            <div class="font-bold">Asesmen <span id="berlatih-ind">1/10</span></div>
+            <div id="berlatih-lvl" class="bg-white text-blue-600 text-xs font-bold px-2 py-1 rounded">Lv 1</div>
+        </header>
+        <main class="flex-grow p-4 md:p-6 max-w-3xl mx-auto w-full pb-20" id="berlatih-content"></main>
+    </section>
+
+    <!-- 9. LAPORAN PDF -->
+    <section id="report-screen" class="min-h-screen bg-gray-100 hidden-view py-6 px-4">
+        <div class="max-w-3xl mx-auto">
+            <div class="flex flex-wrap gap-2 justify-between items-center mb-4 no-print">
+                <button onclick="navTo('main-menu')" class="bg-white px-4 py-2 rounded-lg shadow"><i class="fas fa-arrow-left"></i> Kembali</button>
+                <div class="flex gap-2">
+                    <button id="btn-sync-gas" onclick="sendToGAS()" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow font-bold hidden-view"><i class="fas fa-cloud-upload-alt"></i> Kirim ke Guru</button>
+                    <button onclick="downloadPDF()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow font-bold"><i class="fas fa-download"></i> PDF</button>
+                </div>
+            </div>
+            
+            <div id="gas-status-msg" class="mb-4 text-sm text-center font-bold no-print hidden-view p-2 rounded bg-green-100 text-green-800"></div>
+
+            <div id="pdf-content" class="bg-white p-8 shadow-xl rounded-xl">
+                <!-- KOP -->
+                <div class="border-b-4 border-emerald-800 pb-4 mb-4 flex items-center gap-4">
+                    <img src="https://iili.io/oJJ21P1.png" class="h-20 w-auto" alt="Kop Surat">
+                    <div>
+                        <h2 class="text-xl font-bold uppercase">Laporan Hasil Belajar</h2>
+                        <p class="text-sm font-bold text-emerald-700">Materi: Harga Pasar (IPS Kelas IX)</p>
+                        <p class="text-xs text-gray-500">Guru: Nolvi Moli, S.Pd. | MTs.N 1 Boalemo</p>
+                    </div>
+                </div>
+                <!-- Data -->
+                <div class="grid grid-cols-2 text-sm mb-6 bg-gray-50 p-4 rounded border">
+                    <div><p><b>Nama:</b> <span id="r-nama"></span></p><p><b>Kelas:</b> <span id="r-kelas"></span></p></div>
+                    <div class="text-right"><p><b>Waktu:</b> <span id="r-tgl"></span></p></div>
+                </div>
+                <!-- Nilai -->
+                <div class="mb-4">
+                    <h4 class="font-bold text-indigo-700 mb-2">1. Skor Bermain (Literasi)</h4>
+                    <div class="bg-indigo-50 p-3 rounded flex justify-between border"><p>Total Tantangan: 10/10</p><p class="font-bold text-lg" id="r-s-bermain">0</p></div>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-bold text-blue-700 mb-2">2. Asesmen HOTS</h4>
+                    <div class="grid grid-cols-3 gap-2 mb-2 text-center text-xs">
+                        <div class="bg-gray-100 p-2 rounded">Level 1<br><b class="text-base" id="r-l1">0/24</b></div>
+                        <div class="bg-gray-100 p-2 rounded">Level 2<br><b class="text-base" id="r-l2">0/40</b></div>
+                        <div class="bg-blue-100 p-2 rounded">Level 3 (HOTS)<br><b class="text-base" id="r-l3">0/36</b></div>
+                    </div>
+                    <div class="bg-blue-600 text-white p-4 rounded flex justify-between items-center">
+                        <div><p class="text-xs uppercase">Nilai Akhir</p><h3 class="text-2xl font-bold" id="r-akhir">0</h3></div>
+                        <div class="text-right"><p class="text-xs uppercase">Predikat</p><h3 class="text-xl font-bold" id="r-pred">Cukup</h3></div>
+                    </div>
+                </div>
+                <!-- KBC & TTD -->
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 mt-6 page-break-avoid">
+                    <h4 class="font-bold text-emerald-800 text-sm mb-1"><i class="fas fa-leaf"></i> Catatan Karakter</h4>
+                    <p class="text-xs text-gray-700 text-justify">Ananda telah belajar konsep Harga Pasar. Jadikan ilmu ini sebagai wujud syukur. Berlakulah jujur dalam muamalah dan jagalah alam Gorontalo.</p>
+                    <div class="mt-6 flex justify-end text-sm">
+                        <div class="text-center w-56">
+                            <p id="r-ttd-tgl">Tilamuta, </p>
+                            <p class="mb-12">Mengetahui,<br>Guru Mata Pelajaran</p>
+                            <p class="font-bold underline">Nolvi Moli, S.Pd.</p>
+                            <p>NIP. 197601102005012007</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* --- 1. KONFIGURASI GOOGLE APPS SCRIPT URL --- */
+        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GAS ANDA
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzzP018VU2P-XnK-KHCgGIX4ogqh5xrHVvkH_brk6kQ5A2lFtnVTIOmJlChBdjgCfQMsQ/exec"; 
+        let dataSent = false;
+
+        /* --- 2. STATE & AUDIO --- */
+        let state = { nama: "", kelas: "", prog: { belajar: false, bermain: false, berlatih: false }, scores: { bermain: 0, berlatih: { l1:0, l2:0, l3:0, total:0 } }, curr: { bel:0, ber:0, lat:0 } };
+        let toneInit = false, sClick, sCor, sWr;
+
+        function initTone() {
+            if(!toneInit) {
+                Tone.start();
+                sClick = new Tone.Synth({oscillator:{type:'sine'}, envelope:{attack:0.01, release:0.1}}).toDestination(); sClick.volume.value = -10;
+                sCor = new Tone.PolySynth(Tone.Synth).toDestination(); sCor.volume.value = -10;
+                sWr = new Tone.Synth({oscillator:{type:'sawtooth'}}).toDestination(); sWr.volume.value = -15;
+                toneInit = true;
+            }
+        }
+        document.addEventListener('click', (e) => { initTone(); if(e.target.closest('button, .interactive-item, select, input')) if(sClick) sClick.triggerAttackRelease("C6", "32n"); });
+        function playCor() { if(sCor) sCor.triggerAttackRelease(["C5","E5","G5"], "8n"); }
+        function playWr() { if(sWr) sWr.triggerAttackRelease("C3", "4n"); }
+
+        /* --- 3. DATA KONTEN (Dipadatkan) --- */
+        const DBel = [
+            { t:"Permintaan (Demand)", c:"Permintaan adalah jumlah barang/jasa yang ingin dibeli pada berbagai tingkat harga.<br><br><b>Konteks Gorontalo:</b> Saat panen raya jagung di Boalemo, harga turun. Minat pabrik pakan membeli jagung meningkat (Hukum Permintaan).", a:"وَأَحَلَّ ٱللَّهُ ٱلْبَيْعَ وَحَرَّمَ ٱلرِّبَوٰا۟", tr:"Allah telah menghalalkan jual beli dan mengharamkan riba. (Al-Baqarah:275)", kb:"Beli sesuai kebutuhan agar alam terjaga.", q:"Hubungan harga jagung saat panen raya dengan minat beli?", o:["Harga naik, minat naik","Harga turun, minat naik","Harga tetap"], ans:1 },
+            { t:"Penawaran (Supply)", c:"Penawaran adalah kesediaan penjual menjual barang. Penjual ingin menjual lebih banyak saat harga tinggi.<br><br><b>Konteks Gorontalo:</b> Nelayan Teluk Tomini semangat menawarkan Ikan Tuna saat harga ekspor tinggi.", a:"إِلَّآ أَن تَكُونَ تِجَٰرَةً عَن تَرَاضٍ مِّنكُمْ", tr:"kecuali perniagaan yang berlaku dengan suka sama-suka... (An-Nisa:29)", kb:"Tangkap ikan secukupnya tanpa merusak terumbu karang.", q:"Mengapa nelayan menawarkan Ikan Tuna saat harga tinggi?", o:["Cuaca buruk","Mendapat untung maksimal","Masyarakat tidak suka ikan"], ans:1 },
+            { t:"Harga Keseimbangan", c:"Harga pasar terjadi saat jumlah barang diminta sama dengan ditawarkan. Pembeli & penjual sepakat.<br><br><b>Konteks Gorontalo:</b> Di Pasar Sentral, harga rica (cabai) terbentuk saat harga permintaan sepakat dengan tawaran petani.", a:"وَيْلٌ لِّلْمُطَفِّفِينَ", tr:"Celakalah bagi orang yang curang (dalam menakar)... (Al-Mutaffifin:1)", kb:"Tawar-menawar boleh, tapi jujur dalam timbangan.", q:"Harga Keseimbangan tercapai ketika...", o:["Penjual menetapkan harga","Permintaan lebih besar","Jumlah permintaan & penawaran sepakat"], ans:2 },
+            { t:"Faktor Permintaan", c:"Permintaan dipengaruhi: Pendapatan, selera, harga barang lain.<br><br><b>Konteks Gorontalo:</b> Jelang Lebaran Ketupat, permintaan janur & daging naik drastis karena tradisi masyarakat lokal, bukan karena harga turun.", a:"وَلَا تُسْرِفُوٓا۟ ۚ إِنَّهُۥ لَا يُحِبُّ ٱلْمُسْرِفِينَ", tr:"...dan janganlah berlebih-lebihan. (Al-A'raf:31)", kb:"Hindari konsumtif dan kemubaziran saat berbelanja.", q:"Naiknya permintaan janur saat Lebaran Ketupat dipengaruhi faktor...", o:["Harga turun","Selera/Tradisi masyarakat","Harga barang pelengkap"], ans:1 },
+            { t:"Faktor Penawaran", c:"Penawaran dipengaruhi: Biaya produksi, teknologi.<br><br><b>Konteks Gorontalo:</b> Pengrajin Karawo di Limboto menggunakan media sosial (teknologi) sehingga bisa menawarkan karyanya hingga ke luar negeri.", a:"وَأَن لَّيْسَ لِلْإِنسَٰنِ إِلَّا مَا سَعَىٰ", tr:"Manusia tiada memperoleh selain apa yang diusahakannya. (An-Najm:39)", kb:"Gunakan teknologi untuk inovasi kebaikan.", q:"Penggunaan medsos oleh pengrajin Karawo mencerminkan faktor...", o:["Cuaca","Biaya","Kemajuan teknologi"], ans:2 },
+            { t:"Intervensi Pemerintah", c:"Kadang pemerintah campur tangan menstabilkan pasar.<br><br><b>Konteks Gorontalo:</b> Saat kemarau, harga beras melonjak. Pemerintah mengadakan 'Pasar Murah' untuk membantu rakyat kecil.", a:"إِنَّ ٱللَّهَ يَأْمُرُ بِٱلْعَدْلِ وَٱلْإِحْسَٰنِ", tr:"Sesungguhnya Allah menyuruh (kamu) berlaku adil... (An-Nahl:90)", kb:"Pasar Murah adalah bentuk kepedulian sosial & keadilan.", q:"Tujuan 'Pasar Murah' saat harga beras melonjak...", o:["Cari untung daerah","Menstabilkan harga & lindungi konsumen","Buat petani rugi"], ans:1 }
+        ];
+
+        const DBer = [
+            { type:"mcq", s:"<b>Ikan Nike di Teluk Tomini</b><br>Ikan Nike muncul musiman dan sangat singkat. Kelangkaan ini membuat harga bisa loncat Rp 50.000, padahal hari biasa Rp 10.000.", q:"Mengapa harga Ikan Nike bisa melonjak?", o:["Pemerintah patok harga","Permintaan tinggi berbenturan waktu panen singkat (langka)","Nelayan pakai alat mahal"], a:1 },
+            { type:"mcq", s:"<b>Data Pak Budi</b><br>Bulan Maret harga jagung Rp 4.000/kg. Bulan Juli naik jadi Rp 6.000/kg karena pasokan langka akibat kemarau.", q:"Hitung persentase kenaikan harga jagung!", o:["25%","50%","100%"], a:1 },
+            { type:"mcq", s:"<b>Etika Pasar Sentral</b><br>Islam mengancam orang curang menimbang. Kejujuran adalah utama.", q:"Perilaku yang dilarang QS. Al-Mutaffifin di pasar?", o:["Mengurangi timbangan beras diam-diam","Menjual barang murah","Tawar menawar harga"], a:0 },
+            { type:"mcq", s:"<b>Tradisi Walima</b><br>Jelang Walima, warga memborong telur. Harga telur naik drastis dari 55rb ke 75rb per bak karena penawaran tak sebanding lonjakan permintaan mendadak.", q:"Faktor utama kenaikan harga telur?", o:["Biaya pakan turun","Selera budaya dan permintaan > penawaran","Pemerintah naikkan harga"], a:1 },
+            { type:"mcq", s:"<b>Subsidi Pupuk Limboto</b><br>Pemerintah Gorontalo beri subsidi pupuk agar biaya produksi padi petani turun.", q:"Dampak subsidi pupuk terhadap penawaran beras?", o:["Biaya turun, penawaran naik, harga stabil","Biaya naik, beras langka","Permintaan pupuk hilang"], a:0 },
+            { type:"mcq", s:"<b>Kelapa di Ramadhan</b><br>Permintaan kelapa muda naik tajam saat Ramadhan untuk berbuka puasa, harga naik dari 5rb ke 10rb.", q:"Kurva permintaan bergeser ke kanan karena...", o:["Pendapatan naik","Faktor intensitas kebutuhan beragama (Ramadhan)","Musim hujan"], a:1 },
+            { type:"mcq", s:"<b>Gula Aren Atinggola</b><br>Tabel: Harga 15rb -> 10 batu; Harga 20rb -> 20 batu; Harga 25rb -> 30 batu.", q:"Kesimpulan tabel penawaran di atas?", o:["Makin mahal, makin sedikit produksi","Kenaikan 5rb naikkan penawaran 10 batu","Harga tak pengaruh"], a:1 },
+            { type:"mcq", s:"<b>Tengkulak Pesisir</b><br>Tengkulak nakal memaksa beli ikan nelayan miskin dengan harga sangat murah (batil/riba).", q:"Mengapa tengkulak dilarang?", o:["Monopoli harga yang memiskinkan & tiada ridho","Naikkan mutu ikan","Harga ikan pasar jadi mahal"], a:0 },
+            { type:"mcq", s:"<b>Karawo Online</b><br>Pengrajin kini jual Karawo via E-Commerce, menjangkau pasar nasional.", q:"Struktur pasar Karawo online lebih mendekati...", o:["Monopoli","Oligopoli","Persaingan Monopolistik dengan jangkauan luas"], a:2 },
+            { type:"mcq", s:"<b>Koperasi Syariah</b><br>Nelayan Gorontalo terbantu Koperasi Syariah tanpa bunga (Qardhul Hasan) untuk modal perahu.", q:"Fungsi koperasi syariah bagi penawaran nelayan?", o:["Menurunkan harga jual ikan","Menambah modal agar hasil tangkapan (penawaran) meningkat","Membatasi jumlah ikan"], a:1 }
+        ];
+
+        const DLat = [
+            // Lvl 1 (1-3)
+            { l:1, p:8, s:"Syarat sah pasar dalam Islam adalah kerelaan. Pasar terbentuk dari interaksi elemen dasar.", q:"Elemen utama terbentuknya pasar?", o:["Penjual, pembeli, barang, kesepakatan harga","Gedung mewah","Iklan"], a:0 },
+            { l:1, p:8, s:"Harga jagung naik, pembeli mengurangi pembelian. Ini adalah Hukum Permintaan.", q:"Bunyi hukum permintaan?", o:["Harga naik, permintaan naik","Harga naik, permintaan turun","Harga turun, penawaran naik"], a:1 },
+            { l:1, p:8, s:"Masyarakat Gorontalo memegang prinsip 'Adat bersendikan Syara'.", q:"Nilai jual beli Islami?", o:["Monopoli untung besar","Jujur takaran & tidak memakan harta batil","Menyembunyikan cacat barang"], a:1 },
+            // Lvl 2 (4-7)
+            { l:2, p:10, s:"Pabrik Karawo membeli benang murah dari luar daerah, biaya produksi turun.", q:"Apa dampak terhadap kurva penawaran Karawo?", o:["Geser kiri","Geser kanan (penawaran naik)","Tetap"], a:1 },
+            { l:2, p:10, s:"Jelang lebaran harga daging 120rb/kg jadi 150rb/kg, tapi warga tetap beli.", q:"Alasan permintaan tetap tinggi meski harga naik?", o:["Barang pengganti banyak","Kebutuhan mendesak/tradisi inelastis","Turunnya selera"], a:1 },
+            { l:2, p:10, s:"Jika harga beras di Limboto Rp 10.000 diminta 100ton, ditawar 100ton.", q:"Kondisi ini disebut?", o:["Defisit","Surplus","Keseimbangan Harga (Equilibrium)"], a:2 },
+            { l:2, p:10, s:"Pemerintah mematok Harga Eceran Tertinggi (HET) untuk minyak goreng.", q:"Tujuan kebijakan HET?", o:["Melindungi produsen besar","Melindungi konsumen dari harga terlalu mahal","Meningkatkan inflasi"], a:1 },
+            // Lvl 3 HOTS (8-10)
+            { l:3, p:12, s:"Kasus: Panen tomat di Boalemo melimpah bersamaan. Harga anjlok ke Rp 1.000/kg. Petani rugi dan membiarkan tomat busuk.", q:"Solusi ekonomi kreatif terbaik untuk petani?", o:["Bakar ladang","Menunggu pemerintah beli semua","Olah jadi Saus Tomat/Manisan agar nilai jual naik (Inovasi)"], a:2 },
+            { l:3, p:12, s:"Tengkulak meminjamkan modal tapi memaksa nelayan jual ikan Rp 10rb/kg padahal harga pasar Rp 30rb.", q:"Analisis kelemahan pasar nelayan ini?", o:["Nelayan kurang gizi","Asimetri informasi & eksploitasi monopsoni tengkulak","Ikan terlalu banyak"], a:1 },
+            { l:3, p:12, s:"Permintaan bensin tetap tinggi meski harga naik 20% karena warga butuh untuk kendaraannya.", q:"Sifat elastisitas bensin tersebut?", o:["Elastis Sempurna","Inelastis (kurang peka thd harga)","Elastis Uniter"], a:1 }
+        ];
+
+        /* --- 4. CORE FUNCTIONS --- */
+        function alertMsg(title, msg) { document.getElementById('alert-title').innerText = title; document.getElementById('alert-message').innerText = msg; document.getElementById('custom-alert').classList.remove('hidden-view'); }
+        function closeAlert() { document.getElementById('custom-alert').classList.add('hidden-view'); }
+        function navTo(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-view')); document.getElementById(id).classList.remove('hidden-view'); window.scrollTo(0,0); }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden-view'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden-view'); }
+        
+        function submitLogin() {
+            let n = document.getElementById('in-nama').value.trim(), k = document.getElementById('in-kelas').value;
+            if(!n || !k) return alertMsg("Peringatan", "Nama dan Kelas wajib diisi!");
+            state.nama = n; state.kelas = k;
+            document.getElementById('disp-nama').innerText = n;
+            document.getElementById('menu-nama').innerText = n;
+            document.getElementById('menu-kelas').innerText = k;
+            navTo('guide-screen');
+        }
+
+        function openMenu(m) {
+            if(m === 'belajar') { state.curr.bel = 0; renderBelajar(); navTo('belajar-screen'); }
+            else if(m === 'bermain') { if(!state.prog.belajar) return alertMsg("Terkunci","Selesaikan menu Belajar dulu!"); state.curr.ber = 0; state.scores.bermain = 0; renderBermain(); navTo('bermain-screen'); }
+            else if(m === 'berlatih') { if(!state.prog.bermain) return alertMsg("Terkunci","Selesaikan menu Bermain dulu!"); state.curr.lat = 0; state.scores.berlatih = {l1:0, l2:0, l3:0, total:0}; renderBerlatih(); navTo('berlatih-screen'); }
+        }
+
+        function confirmExit(target) { if(confirm("Keluar dari pengerjaan saat ini? Progres tidak akan tersimpan.")) navTo(target); }
+
+        /* --- BELAJAR LOGIC --- */
+        function renderBelajar() {
+            let d = DBel[state.curr.bel]; document.getElementById('materi-ind').innerText = `${state.curr.bel + 1}/6`;
+            document.getElementById('belajar-content').innerHTML = `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border mb-6 slide-up">
+                    <h2 class="text-2xl font-bold text-emerald-800 mb-4">${d.t}</h2>
+                    <p class="text-gray-700 leading-relaxed mb-6 text-justify">${d.c}</p>
+                    <div class="bg-emerald-50 p-4 rounded-xl mb-4 border border-emerald-100">
+                        <p class="arabic-text text-emerald-900 mb-2">${d.a}</p><p class="text-sm text-gray-600">${d.tr}</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><p class="text-sm text-gray-700"><b><i class="fas fa-heart text-red-500"></i> Nilai Karakter:</b> ${d.kb}</p></div>
+                </div>`;
+        }
+        function openMateriQuiz() {
+            let qd = DBel[state.curr.bel]; document.getElementById('materi-q-text').innerText = qd.q;
+            let opts = qd.o.map((o,i) => `<button onclick="cekMateri(${i})" class="w-full text-left p-3 border rounded-xl hover:bg-emerald-50 transition-colors font-medium">${['A','B','C'][i]}. ${o}</button>`).join('');
+            document.getElementById('materi-q-options').innerHTML = opts;
+            openModal('modal-materi-quiz');
+        }
+        function cekMateri(ans) {
+            if(ans === DBel[state.curr.bel].ans) {
+                playCor(); closeModal('modal-materi-quiz');
+                if(state.curr.bel < 5) { state.curr.bel++; renderBelajar(); window.scrollTo(0,0); }
+                else { state.prog.belajar = true; unlockMenu('bermain'); alertMsg("Hebat!","Materi selesai. Menu BERMAIN telah terbuka."); navTo('main-menu'); }
+            } else { playWr(); alertMsg("Kurang Tepat", "Coba baca materi dan jawab lagi."); closeModal('modal-materi-quiz'); }
+        }
+        function unlockMenu(m) {
+            let el = document.getElementById(`c-${m}`), l = document.getElementById(`l-${m}`);
+            el.classList.remove('cursor-not-allowed', 'opacity-70', 'border-gray-300');
+            el.classList.add('border-indigo-500', 'hover:-translate-y-1');
+            l.innerHTML = '<i class="fas fa-unlock text-emerald-500"></i>'; l.className = "absolute top-4 right-4 bg-emerald-50 p-2 rounded-full";
+        }
+
+        /* --- BERMAIN LOGIC --- */
+        function renderBermain() {
+            let d = DBer[state.curr.ber]; document.getElementById('bermain-ind').innerText = `${state.curr.ber + 1}/10`;
+            let ui = `<div class="bg-white p-6 rounded-2xl shadow-sm border mb-4 slide-up"><div class="bg-indigo-50 p-4 rounded-xl text-gray-700 text-sm mb-4 border text-justify leading-relaxed">${d.s}</div><h3 class="font-bold text-lg mb-4">${d.q}</h3>`;
+            ui += `<div class="space-y-3">` + d.o.map((o,i) => `<button onclick="cekBermain(${i})" class="w-full text-left p-4 border-2 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-colors font-medium text-gray-700">${['A','B','C'][i]}. ${o}</button>`).join('') + `</div></div>`;
+            document.getElementById('bermain-content').innerHTML = ui;
+        }
+        function cekBermain(ans) {
+            if(ans === DBer[state.curr.ber].a) { playCor(); state.scores.bermain += 10; } else { playWr(); }
+            if(state.curr.ber < 9) { state.curr.ber++; setTimeout(()=>renderBermain(), 400); }
+            else { state.prog.bermain = true; unlockMenu('berlatih'); alertMsg("Selesai!","Tantangan Bermain selesai. Skor: " + state.scores.bermain + ". Menu BERLATIH terbuka."); navTo('main-menu'); }
+        }
+
+        /* --- BERLATIH LOGIC --- */
+        function renderBerlatih() {
+            let d = DLat[state.curr.lat]; document.getElementById('berlatih-ind').innerText = `${state.curr.lat + 1}/10`;
+            let badge = document.getElementById('berlatih-lvl');
+            badge.innerText = `Level ${d.l}`; badge.className = d.l==1?"bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold":(d.l==2?"bg-white text-yellow-600 px-2 py-1 rounded text-xs font-bold":"bg-white text-red-600 px-2 py-1 rounded text-xs font-bold");
+            let ui = `<div class="bg-white p-6 rounded-2xl shadow-sm border mb-4 slide-up"><div class="bg-blue-50 p-4 rounded-xl text-gray-700 text-sm mb-4 border text-justify leading-relaxed">${d.s}</div><h3 class="font-bold text-lg mb-4">${d.q}</h3><div class="space-y-3">`;
+            ui += d.o.map((o,i) => `<button onclick="cekBerlatih(${i})" class="w-full text-left p-4 border-2 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-colors font-medium text-gray-700">${['A','B','C'][i]}. ${o}</button>`).join('') + `</div></div>`;
+            document.getElementById('berlatih-content').innerHTML = ui;
+        }
+        function cekBerlatih(ans) {
+            let d = DLat[state.curr.lat];
+            if(ans === d.a) { playCor(); state.scores.berlatih[`l${d.l}`] += d.p; state.scores.berlatih.total += d.p; } else { playWr(); }
+            if(state.curr.lat < 9) { state.curr.lat++; setTimeout(()=>renderBerlatih(), 400); }
+            else { finishBerlatih(); }
+        }
+        function finishBerlatih() {
+            state.prog.berlatih = true; document.getElementById('btn-report-nav').classList.remove('hidden-view');
+            alertMsg("Asesmen Selesai", "Nilai Akhir: " + state.scores.berlatih.total + "/100. Silakan lihat Laporan PDF."); navTo('main-menu');
+            generateReport();
+        }
+
+        /* --- REPORT & PDF --- */
+        function generateReport() {
+            document.getElementById('r-nama').innerText = state.nama; document.getElementById('r-kelas').innerText = state.kelas;
+            document.getElementById('r-tgl').innerText = new Date().toLocaleDateString('id-ID'); document.getElementById('r-ttd-tgl').innerText = "Tilamuta, " + new Date().toLocaleDateString('id-ID');
+            document.getElementById('r-s-bermain').innerText = state.scores.bermain;
+            document.getElementById('r-l1').innerText = `${state.scores.berlatih.l1}/24`; document.getElementById('r-l2').innerText = `${state.scores.berlatih.l2}/40`; document.getElementById('r-l3').innerText = `${state.scores.berlatih.l3}/36`;
+            let t = state.scores.berlatih.total; document.getElementById('r-akhir').innerText = t;
+            document.getElementById('r-pred').innerText = t>=90?"Sangat Baik":t>=75?"Baik":t>=60?"Cukup":"Perlu Bimbingan";
+            
+            // Show Sync Button if GAS_URL is set
+            if(GAS_URL && GAS_URL.includes("script.google.com") && !dataSent) {
+                document.getElementById('btn-sync-gas').classList.remove('hidden-view');
+            }
+        }
+        
+        function downloadPDF() {
+            const el = document.getElementById('pdf-content');
+            html2pdf().set({ margin:10, filename:`Laporan_IPS_${state.nama}.pdf`, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} }).from(el).save();
+        }
+
+        /* --- GOOGLE APPS SCRIPT SYNC --- */
+        async function sendToGAS() {
+            if(dataSent) return;
+            const btn = document.getElementById('btn-sync-gas');
+            const status = document.getElementById('gas-status-msg');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...'; btn.disabled = true;
+            
+            // Payload menggunakan URLSearchParams (Cocok untuk doPost di GAS Web App)
+            const payload = new URLSearchParams({
+                'nama': state.nama,
+                'kelas': state.kelas,
+                'skor_bermain': state.scores.bermain,
+                'skor_berlatih': state.scores.berlatih.total,
+                'tanggal': new Date().toLocaleString('id-ID')
+            });
+
+            try {
+                // Menggunakan mode no-cors agar tidak di-blok browser saat POST ke Google Script
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: payload.toString()
+                });
+                
+                // Karena no-cors, response selalu opaque (status 0). Asumsikan berhasil.
+                dataSent = true;
+                btn.classList.add('hidden-view');
+                status.innerText = "Data hasil belajar berhasil dikirim ke database guru!";
+                status.classList.remove('hidden-view');
+                playCor();
+            } catch (err) {
+                console.error("Gagal mengirim:", err);
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal, Coba Lagi';
+                btn.disabled = false;
+                alertMsg("Gagal Sinkronisasi", "Pastikan koneksi internet stabil.");
+            }
+        }
+    </script>
+</body>
+</html>
